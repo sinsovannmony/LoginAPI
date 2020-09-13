@@ -11,21 +11,21 @@ const nodemailer = require("nodemailer");
 
 router.post("/register", async (req, res) => {
     try {
-      const confirmcode= Math.floor(100000 + Math.random() * 900000);
-      const hashedPassword = await bcrypt.hash(req.body.password,10);
-      const username = req.body.username;
       const email = req.body.email;
-      const password = hashedPassword;
       const userExists = await RegisterModel.findOne({ email });
       if (userExists) return res.json("Aleady Taken");
       else
       {
+        const confirmcode= Math.floor(100000 + Math.random() * 900000);
+        const hashedPassword = await bcrypt.hash(req.body.password,10);
+        const username = req.body.username;
+        const password = hashedPassword;
         let transporter = nodemailer.createTransport({
           service: "Gmail",
           port: 2525,
           auth: {
-            user: "IceRookie18@gmail.com",
-            pass: "icerookie168",
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD,
           },
           tls: {
             rejectUnauthorized: false,
@@ -34,7 +34,7 @@ router.post("/register", async (req, res) => {
         
           // setup email data with unicode symbols
         let mailOptions = {
-          from: 'IceRookie18@gmail.com', // sender address
+          from: process.env.EMAIL, // sender address
           to: email, // list of receivers
           subject: 'ConfirmCode', // Subject line
           text: 'VerifyCode: '+confirmcode, // plain text body
@@ -55,31 +55,10 @@ router.post("/register", async (req, res) => {
     }
     catch (error) {return res.json(error.message);}
   });
-  router.post("/confirmemail",async (req,res)=>
-  {
-    try{
-      const email = req.flash('email').toString().replace(/\s|\[|\]/g,"");
-      const username = req.flash('username').toString().replace(/\s|\[|\]/g,"");
-      const password = req.flash('password').toString().replace(/\s|\[|\]/g,"");
-      const confirmcode = req.flash('confirmcode').toString().replace(/\s|\[|\]/g,"");
-      const code = req.body.code;
-      if(code!=confirmcode) return res.json("Error Code");
-      else 
-      {
-        const newUser = await RegisterModel.create({ username, password, email });
-        return res.json("Right Code")
-      }
-  }
-    catch(error)
-    {
-      return res.json(error.message);
-    }
-  });
   router.post("/login",async (req,res)=>
   {
     try {
       const { email, password } = req.body;
-      console.log(email);
       const userExists = await RegisterModel.findOne({ email });
       if (!userExists) return res.json("Incorrect email");
       else
@@ -101,9 +80,24 @@ router.post("/register", async (req, res) => {
     }
   });
 
-  router.get("/show",checkToken, async (req, res) => {
-    const database = await RegisterModel.find();
-    return res.json(database);
+  router.post("/confirmemail",async (req,res)=>
+  {
+    try{
+      const confirmcode = req.flash('confirmcode').toString().replace(/\s|\[|\]/g,"");
+      const code = req.body.code;
+      if(code!=confirmcode) return res.json("Error Code");
+      else 
+      {
+        const email = req.flash('email').toString().replace(/\s|\[|\]/g,"");
+        const username = req.flash('username').toString().replace(/\s|\[|\]/g,"");
+        const password = req.flash('password').toString().replace(/\s|\[|\]/g,"");
+        const newUser = await RegisterModel.create({ username, password, email });
+        return res.json("Right Code")
+      }
+  }
+    catch(error)
+    {
+      return res.json(error.message);
+    }
   });
-
   module.exports = router;
