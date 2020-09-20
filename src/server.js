@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const flash = require("connect-flash");
 const mongoose = require("mongoose");
 const registerRouter = require("./routes/register");
 const roomRouter = require("./routes/room");
@@ -14,9 +13,7 @@ async function startserver()
   const PORT = process.env.PORT;
   const DB_Connect = process.env.DB_CONNECTION;
 
-  app.use(require('express-session')({ secret: 'anything',resave: true, saveUninitialized: true,}));
   app.use(express.urlencoded({ extended: false }));
-  app.use(flash());
   app.use(express.json());
   app.use(cors());
   app.use("/", registerRouter); 

@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const RegisterModel = require("../models/Register");
-const session = require("express-session");
 const jwt = require("jsonwebtoken");
-const flash = require("connect-flash");
 const checkToken = require("../utilities/checkToken");
 const nodemailer = require("nodemailer");
 
@@ -19,6 +17,7 @@ router.post("/register", async (req, res) => {
         const confirmcode= Math.floor(100000 + Math.random() * 900000);
         const hashedPassword = await bcrypt.hash(req.body.password,10);
         const username = req.body.username;
+        const gender = req.body.gender;
         const password = hashedPassword;
         let transporter = nodemailer.createTransport({
           service: "Gmail",
@@ -44,10 +43,11 @@ router.post("/register", async (req, res) => {
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) return res.json("Invalid Email");
           else {
-            req.flash('confirmcode', confirmcode);
-            req.flash('password', password);
-            req.flash('username', username);
-            req.flash('email', email);
+            localStorage.setItem('confirmcode',confirmcode);
+            localStorage.setItem('password',password);
+            localStorage.setItem('username',username);
+            localStorage.setItem('gender',gender);
+            localStorage.setItem('email',email);
             return res.json("Register");
           }
           });
@@ -69,7 +69,7 @@ router.post("/register", async (req, res) => {
           else if (isMatch)
           {
             const token = jwt.sign(email, "thisismysecretkey");
-            return res.json(token);
+            return res.json(token+"/"+userExists.username);
           }
           else return res.json("Incorrect Password");
         });
@@ -83,15 +83,16 @@ router.post("/register", async (req, res) => {
   router.post("/confirmemail",async (req,res)=>
   {
     try{
-      const confirmcode = req.flash('confirmcode').toString().replace(/\s|\[|\]/g,"");
+      const confirmcode = localStorage.getItem('confirmcode');
       const code = req.body.code;
       if(code!=confirmcode) return res.json("Error Code");
       else 
       {
-        const email = req.flash('email').toString().replace(/\s|\[|\]/g,"");
-        const username = req.flash('username').toString().replace(/\s|\[|\]/g,"");
-        const password = req.flash('password').toString().replace(/\s|\[|\]/g,"");
-        const newUser = await RegisterModel.create({ username, password, email });
+        const email = localStorage.getItem('email');
+        const username = localStorage.getItem('username');
+        const password = localStorage.getItem('password');
+        const gender = localStorage.getItem('gender');
+        const newUser = await RegisterModel.create({ username, password, email ,gender});
         return res.json("Right Code")
       }
   }
@@ -100,4 +101,15 @@ router.post("/register", async (req, res) => {
       return res.json(error.message);
     }
   });
+
+  router.post("/show",checkToken,async (req,res)=>
+  {
+    try{
+     return res.json("U can do it");
+    } 
+    catch (error) {
+      return res.json({ msg: error.message});
+    }
+  });
+
   module.exports = router;

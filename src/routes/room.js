@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const checkToken = require("../utilities/checkToken");
 
 
-router.post("/createroom", async (req, res) => {
+router.post("/createroom",checkToken, async (req, res) => {
    try
    {
         const roomname = req.body.roomname;
@@ -23,7 +23,7 @@ router.post("/createroom", async (req, res) => {
     catch (error) {return res.json(error.message);}
   });
 
-  router.post("/joinroom" ,async (req, res) => {
+  router.post("/joinroom",checkToken ,async (req, res) => {
     try
     {
         const {roomname , password} = req.body;
@@ -46,7 +46,7 @@ router.post("/createroom", async (req, res) => {
    });
 
 
-   router.post("/delete", async (req, res) => {
+   router.post("/delete",checkToken, async (req, res) => {
     try
     {
         const roomname = req.body.roomname;
