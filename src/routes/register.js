@@ -10,6 +10,7 @@ const nodemailer = require("nodemailer");
 router.post("/register", async (req, res) => {
     try {
       const email = req.body.email;
+      console.log(email);
       const userExists = await RegisterModel.findOne({ email });
       if (userExists) return res.json("Aleady Taken");
       else
@@ -59,6 +60,7 @@ router.post("/register", async (req, res) => {
   {
     try {
       const { email, password } = req.body;
+      console.log(email);
       const userExists = await RegisterModel.findOne({ email });
       if (!userExists) return res.json("Incorrect email");
       else
@@ -68,8 +70,8 @@ router.post("/register", async (req, res) => {
           if (err) console.log(err);
           else if (isMatch)
           {
-            const token = jwt.sign(email, "thisismysecretkey");
-            return res.json(token+"/"+userExists.username);
+            const token = jwt.sign(email, process.env.SECRET);
+            return res.json(token+"/"+userExists.username+"/"+email+"/"+userExists.gender);
           }
           else return res.json("Incorrect Password");
         });

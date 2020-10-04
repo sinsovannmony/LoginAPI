@@ -42,7 +42,7 @@ router.post("/forgotpassword", async (req, res) => {
           // send mail with defined transport object
          transporter.sendMail(mailOptions, (error, info) => {
           // if (error) return res.json("Invalid Email");
-          if(error) console.log(error);
+          if(error) return res.json("Invalid Email");
           else{
                 localStorage.setItem('resetcode',resetcode);
                 localStorage.setItem('newpassword',newpassword);

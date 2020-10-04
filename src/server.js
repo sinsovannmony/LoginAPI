@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const registerRouter = require("./routes/register");
 const roomRouter = require("./routes/room");
 const forgotpasswordRouter = require("./routes/forgotpassword");
+const changedata = require("./routes/change")
 require('dotenv').config();
 
 
@@ -18,7 +19,8 @@ async function startserver()
   app.use(cors());
   app.use("/", registerRouter); 
   app.use("/",forgotpasswordRouter);
-  app.use("/",roomRouter)
+  app.use("/",roomRouter);
+  app.use("/",changedata);
 
   await mongoose.connect(DB_Connect, { useNewUrlParser: true, useUnifiedTopology: true,})
   .then(() => console.log("DB CONNECTION COMPLETE"))

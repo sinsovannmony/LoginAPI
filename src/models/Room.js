@@ -9,6 +9,11 @@ const RoomSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  description:
+  {
+    type: String,
+    required: true,
+  },
 });
 
 const RoomModel = mongoose.model("Room", RoomSchema);
