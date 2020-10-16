@@ -42,7 +42,7 @@ router.post("/register", async (req, res) => {
         
           // send mail with defined transport object
         transporter.sendMail(mailOptions, (error, info) => {
-          if (error) return res.json("Invalid Email");
+          if (error) return res.json(error);
           else {
             localStorage.setItem('confirmcode',confirmcode);
             localStorage.setItem('password',password);
